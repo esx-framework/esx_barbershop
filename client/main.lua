@@ -3,6 +3,7 @@ local menuOpened = false
 function OpenShopMenu()
 	TriggerEvent('esx_skin:openRestrictedMenu', function(data, menu)
 		menuOpened = true
+		local HasPaid = false
 		menu.close()
 		
 		local elements = {
@@ -19,7 +20,7 @@ function OpenShopMenu()
 						TriggerEvent('skinchanger:getSkin', function(skin)
 							TriggerServerEvent('esx_skin:save', skin)
 						end)
-
+						HasPaid = true
 						TriggerServerEvent('esx_barbershop:pay')
 					else
 						ESX.CloseContext()
@@ -36,6 +37,12 @@ function OpenShopMenu()
 					TriggerEvent('skinchanger:loadSkin', skin) 
 				end)
 				ESX.CloseContext()
+			end
+		end, function()
+			if not HasPaid then 
+				ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
+					TriggerEvent('skinchanger:loadSkin', skin) 
+				end)
 			end
 		end)
 	end, function(data, menu)
