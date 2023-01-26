@@ -1,11 +1,10 @@
-local hasAlreadyEnteredMarker, lastZone, currentAction, currentActionMsg, hasPaid
+local menuOpened = false
 
 function OpenShopMenu()
-	hasPaid = false
-
 	TriggerEvent('esx_skin:openRestrictedMenu', function(data, menu)
+		menuOpened = true
 		menu.close()
-
+		
 		local elements = {
 			{unselectable = true, icon = "fas fa-check-double", title = TranslateCap("valid_purchase")},
 			{icon = "fas fa-check-circle", title = TranslateCap("yes"), value = "yes"},
@@ -22,7 +21,6 @@ function OpenShopMenu()
 						end)
 
 						TriggerServerEvent('esx_barbershop:pay')
-						hasPaid = true
 					else
 						ESX.CloseContext()
 						ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
@@ -31,6 +29,7 @@ function OpenShopMenu()
 
 						ESX.ShowNotification(TranslateCap('not_enough_money'))
 					end
+					menuOpened = false
 				end)
 			elseif element.value == "no" then
 				ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
@@ -38,17 +37,9 @@ function OpenShopMenu()
 				end)
 				ESX.CloseContext()
 			end
-			currentAction = 'shop_menu'
-			currentActionMsg = TranslateCap('press_access')
-		end, function(menu)
-			currentAction = 'shop_menu'
-			currentActionMsg = TranslateCap('press_access')
 		end)
 	end, function(data, menu)
 		menu.close()
-
-		currentAction    = 'shop_menu'
-		currentActionMsg  = TranslateCap('press_access')
 	end, {
 		'beard_1',
 		'beard_2',
@@ -75,89 +66,33 @@ function OpenShopMenu()
 	})
 end
 
-AddEventHandler('esx_barbershop:hasEnteredMarker', function(zone)
-	currentAction = 'shop_menu'
-	currentActionMsg = TranslateCap('press_access')
-end)
-
-AddEventHandler('esx_barbershop:hasExitedMarker', function(zone)
-	ESX.CloseContext()
-	currentAction = nil
-
-	if not hasPaid then
-		ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-			TriggerEvent('skinchanger:loadSkin', skin)
-		end)
-	end
-end)
-
--- Create Blips
+-- Create Interactions
 CreateThread(function()
 	for k,v in ipairs(Config.Shops) do
+		-- blips
 		local blip = AddBlipForCoord(v)
 
-		SetBlipSprite (blip, 71)
-		SetBlipColour (blip, 51)
+		SetBlipSprite(blip, 71)
+		SetBlipScale(blip, 0.7)
+		SetBlipColour(blip, 51)
 		SetBlipAsShortRange(blip, true)
 
 		BeginTextCommandSetBlipName('STRING')
 		AddTextComponentSubstringPlayerName(TranslateCap('barber_blip'))
 		EndTextCommandSetBlipName(blip)
-	end
-end)
 
--- Enter / Exit marker events and draw marker
-CreateThread(function()
-	while true do
-		Wait(0)
-		local playerCoords, isInMarker, currentZone, letSleep = GetEntityCoords(PlayerPedId()), nil, nil, true
-
-		for k,v in ipairs(Config.Shops) do
-			local distance = #(playerCoords - v)
-
-			if distance < Config.DrawDistance then
-				letSleep = false
-				DrawMarker(Config.MarkerType, v, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Config.MarkerSize, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, false, nil, nil, false)
-
-				if distance < 1.5 then
-					isInMarker, currentZone = true, k
-				end
+		-- Markers
+		ESX.CreateMarker("barber".. k, v, Config.DrawDistance, TranslateCap('press_access'), {
+			drawMarker = true,
+			key = 38,
+			scale = Config.MarkerSize, -- Scale of the marker
+			sprite = Config.MarkerType, -- type of the marker
+			colour =  Config.MarkerColor -- R, G, B, A, colour system
+		}, function()
+			if not menuOpened then
+				OpenShopMenu()
+				ESX.HideUI()
 			end
-		end
-
-		if (isInMarker and not hasAlreadyEnteredMarker) or (isInMarker and lastZone ~= currentZone) then
-			hasAlreadyEnteredMarker, lastZone = true, currentZone
-			TriggerEvent('esx_barbershop:hasEnteredMarker', currentZone)
-		end
-
-		if not isInMarker and hasAlreadyEnteredMarker then
-			hasAlreadyEnteredMarker = false
-			TriggerEvent('esx_barbershop:hasExitedMarker', lastZone)
-		end
-
-		if letSleep then
-			Wait(500)
-		end
-	end
-end)
-
--- Key controls
-CreateThread(function()
-	while true do
-		Wait(0)
-
-		if currentAction then
-			ESX.ShowHelpNotification(currentActionMsg)
-
-			if IsControlJustReleased(0, 38) then
-				if currentAction == 'shop_menu' then
-					OpenShopMenu()
-				end
-
-				currentAction = nil
-			end
-		else
-			Wait(500)
-		end
+		end)
 	end
 end)
