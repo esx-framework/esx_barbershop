@@ -1,6 +1,7 @@
 local hasAlreadyEnteredMarker, lastZone, currentAction, currentActionMsg, hasPaid
 
 function OpenShopMenu()
+	ESX.HideUI()
 	hasPaid = false
 
 	TriggerEvent('esx_skin:openRestrictedMenu', function(data, menu)
@@ -40,15 +41,18 @@ function OpenShopMenu()
 			end
 			currentAction = 'shop_menu'
 			currentActionMsg = TranslateCap('press_access')
+			ESX.TextUI(currentActionMsg)
 		end, function(menu)
 			currentAction = 'shop_menu'
 			currentActionMsg = TranslateCap('press_access')
+			ESX.TextUI(currentActionMsg)
 		end)
 	end, function(data, menu)
 		menu.close()
 
 		currentAction    = 'shop_menu'
 		currentActionMsg  = TranslateCap('press_access')
+		ESX.TextUI(currentActionMsg)
 	end, {
 		'beard_1',
 		'beard_2',
@@ -78,11 +82,13 @@ end
 AddEventHandler('esx_barbershop:hasEnteredMarker', function(zone)
 	currentAction = 'shop_menu'
 	currentActionMsg = TranslateCap('press_access')
+	ESX.TextUI(currentActionMsg)
 end)
 
 AddEventHandler('esx_barbershop:hasExitedMarker', function(zone)
 	ESX.CloseContext()
 	currentAction = nil
+	ESX.HideUI()
 
 	if not hasPaid then
 		ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
@@ -147,8 +153,6 @@ CreateThread(function()
 		Wait(0)
 
 		if currentAction then
-			ESX.ShowHelpNotification(currentActionMsg)
-
 			if IsControlJustReleased(0, 38) then
 				if currentAction == 'shop_menu' then
 					OpenShopMenu()
