@@ -1,7 +1,7 @@
 <h1 align='center'>[ESX] Barber Shop</a></h1><p align='center'><b><a href='https://discord.esx-framework.org/'>Discord</a> - <a href='https://documentation.esx-framework.org/legacy/installation'>Documentation</a></b></h5>
 
 ## Requirements
-- [esx_skin]((https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/esx_skin))
+- [esx_skin](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/esx_skin)
 
 ## Download & Installation
 
