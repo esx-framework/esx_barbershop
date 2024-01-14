@@ -1,8 +1,16 @@
-local hasAlreadyEnteredMarker, lastZone, currentAction, currentActionMsg, hasPaid
+local hasAlreadyEnteredMarker, cachedSkin, lastZone, currentAction, currentActionMsg, hasPaid
 
 function OpenShopMenu()
 	ESX.HideUI()
 	hasPaid = false
+
+	TriggerEvent('skinchanger:getSkin', function(skin)
+		cachedSkin = skin;
+	end)
+
+	while not cachedSkin do
+		Wait(10)
+	end
 
 	TriggerEvent('esx_skin:openRestrictedMenu', function(data, menu)
 		menu.close()
@@ -26,17 +34,13 @@ function OpenShopMenu()
 						hasPaid = true
 					else
 						ESX.CloseContext()
-						ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-							TriggerEvent('skinchanger:loadSkin', skin) 
-						end)
-
+						TriggerEvent('skinchanger:loadSkin', cachedSkin)
+									
 						ESX.ShowNotification(TranslateCap('not_enough_money'))
 					end
 				end)
 			elseif element.value == "no" then
-				ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-					TriggerEvent('skinchanger:loadSkin', skin) 
-				end)
+				TriggerEvent('skinchanger:loadSkin', cachedSkin) 
 				ESX.CloseContext()
 			end
 			currentAction = 'shop_menu'
