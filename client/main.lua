@@ -103,8 +103,8 @@ end)
 
 -- Create Blips
 CreateThread(function()
-	for k,v in ipairs(Config.Shops) do
-		local blip = AddBlipForCoord(v)
+	for i = 1, #Config.Shops do
+      		local blip = AddBlipForCoord(v)
 
 		SetBlipSprite (blip, 71)
 		SetBlipColour (blip, 51)
@@ -113,7 +113,7 @@ CreateThread(function()
 		BeginTextCommandSetBlipName('STRING')
 		AddTextComponentSubstringPlayerName(TranslateCap('barber_blip'))
 		EndTextCommandSetBlipName(blip)
-	end
+    	end
 end)
 
 -- Enter / Exit marker events and draw marker
@@ -122,7 +122,7 @@ CreateThread(function()
 		Wait(0)
 		local playerCoords, isInMarker, currentZone, letSleep = GetEntityCoords(PlayerPedId()), nil, nil, true
 
-		for k,v in ipairs(Config.Shops) do
+		for y = 1, #Config.Shops do
 			local distance = #(playerCoords - v)
 
 			if distance < Config.DrawDistance then
