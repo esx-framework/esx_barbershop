@@ -123,7 +123,7 @@ CreateThread(function()
 		local playerCoords, isInMarker, currentZone, letSleep = GetEntityCoords(PlayerPedId()), nil, nil, true
 
 		for y = 1, #Config.Shops do
-			local distance = #(playerCoords - v)
+			local distance = #(playerCoords - Config.Shops[y])
 
 			if distance < Config.DrawDistance then
 				letSleep = false
