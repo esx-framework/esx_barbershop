@@ -1,8 +1,16 @@
-local hasAlreadyEnteredMarker, lastZone, currentAction, currentActionMsg, hasPaid
+local hasAlreadyEnteredMarker, cachedSkin, lastZone, currentAction, currentActionMsg, hasPaid
 
 function OpenShopMenu()
 	ESX.HideUI()
 	hasPaid = false
+
+	TriggerEvent('skinchanger:getSkin', function(skin)
+		cachedSkin = skin;
+	end)
+
+	while not cachedSkin do
+		Wait(10)
+	end
 
 	TriggerEvent('esx_skin:openRestrictedMenu', function(data, menu)
 		menu.close()
@@ -26,17 +34,13 @@ function OpenShopMenu()
 						hasPaid = true
 					else
 						ESX.CloseContext()
-						ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-							TriggerEvent('skinchanger:loadSkin', skin) 
-						end)
-
+						TriggerEvent('skinchanger:loadSkin', cachedSkin)
+									
 						ESX.ShowNotification(TranslateCap('not_enough_money'))
 					end
 				end)
 			elseif element.value == "no" then
-				ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-					TriggerEvent('skinchanger:loadSkin', skin) 
-				end)
+				TriggerEvent('skinchanger:loadSkin', cachedSkin) 
 				ESX.CloseContext()
 			end
 			currentAction = 'shop_menu'
@@ -99,8 +103,8 @@ end)
 
 -- Create Blips
 CreateThread(function()
-	for k,v in ipairs(Config.Shops) do
-		local blip = AddBlipForCoord(v)
+	for i = 1, #Config.Shops do
+      		local blip = AddBlipForCoord(Config.Shops[i])
 
 		SetBlipSprite (blip, 71)
 		SetBlipColour (blip, 51)
@@ -109,7 +113,7 @@ CreateThread(function()
 		BeginTextCommandSetBlipName('STRING')
 		AddTextComponentSubstringPlayerName(TranslateCap('barber_blip'))
 		EndTextCommandSetBlipName(blip)
-	end
+    	end
 end)
 
 -- Enter / Exit marker events and draw marker
@@ -118,8 +122,8 @@ CreateThread(function()
 		Wait(0)
 		local playerCoords, isInMarker, currentZone, letSleep = GetEntityCoords(PlayerPedId()), nil, nil, true
 
-		for k,v in ipairs(Config.Shops) do
-			local distance = #(playerCoords - v)
+		for y = 1, #Config.Shops do
+			local distance = #(playerCoords - Config.Shops[y])
 
 			if distance < Config.DrawDistance then
 				letSleep = false
