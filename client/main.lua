@@ -104,7 +104,7 @@ end)
 -- Create Blips
 CreateThread(function()
 	for i = 1, #Config.Shops do
-      		local blip = AddBlipForCoord(v)
+      		local blip = AddBlipForCoord(Config.Shops[i])
 
 		SetBlipSprite (blip, 71)
 		SetBlipColour (blip, 51)
