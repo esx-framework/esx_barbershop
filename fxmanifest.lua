@@ -2,7 +2,7 @@ fx_version 'adamant'
 
 game 'gta5'
 
-description 'ESX Barber Shop'
+description 'Allows Players to pay to change their hairstyle'
 lua54 'yes'
 version '1.0'
 legacyversion '1.9.1'
